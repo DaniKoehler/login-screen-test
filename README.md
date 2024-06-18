@@ -27,6 +27,7 @@
 
 ## Possiveis problemas
 - Caso ao tentar acessar o site aparecer uma mensagem de erro "Forbidden - You don't have permission to access this resource.", execute os seguintes comandos:
+- ```docker exec -it docker_conf-php81-1 bash``` para acessar o container
 - ```cd /etc/apache2/sites-available``` para acessar o diretorio de configuração do apache
 - ```nano 000-default.conf``` para editar o arquivo de configuração
 - Apague todas as linhas e cole o seguinte código (obs: caso a configuração já seja essa, apenas pule para o próximo passo):
