@@ -1,0 +1,74 @@
+version: "3"
+services:
+  php81:
+    build: "."
+    image: "php:8.1-apache"
+    ports:
+      - "80:80"
+      #- '443:443'
+    volumes:
+      - "./../:/var/www/html"
+      - "././apache2.conf:/etc/apache2/apache2.conf"
+      - "././sites-available:/etc/apache2/sites-available"
+      - "././sites-enabled:/etc/apache2/sites-enabled"
+      - "././vhost.conf:/etc/apache2/sites-available/000-default.conf"
+      - "././ports.conf:/etc/apache2/ports.conf"
+      - "././security.conf:/etc/apache2/conf-available/security.conf"
+      - "././php.ini:/usr/local/etc/php/php.ini"
+      - "././evasive.conf:/etc/apache2/mods-enabled/evasive.conf"
+      - "././mpm_worker.conf:/etc/apache2/mods-available/mpm_worker.conf"
+      - "././mpm_prefork.conf:/etc/apache2/mods-available/mpm_prefork.conf"
+      - "/etc/hosts:/etc/hosts"
+      # - "/etc/letsencrypt:/etc/letsencrypt"
+      # - '/etc/letsencrypt/options-ssl-apache.conf:/etc/letsencrypt/options-ssl-apache.conf'
+      # - '/etc/letsencrypt/live/<dominio>:/etc/letsencrypt/live/httpd'
+      # - '/etc/letsencrypt/archive/<dominio>:/etc/letsencrypt/archive/<dominio>'
+    restart: "always"
+    networks:
+      default:
+        ipv4_address: 172.18.0.80
+
+  db:
+    image: mysql
+    # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
+    # (this is just an example, not intended to be a production configuration)
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      default:
+        ipv4_address: 172.18.0.81
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      default:
+        ipv4_address: 172.18.0.82
+
+  redis:
+    image: redis
+    command: redis-server --requirepass 1234 --appendonly yes
+    hostname: redis
+    ports:
+      - "6379:6379"
+    networks:
+      default:
+        ipv4_address: 172.18.0.8
+
+# docker network create --subnet=172.18.0.0/16 php-apache
+
+networks:
+  default:
+    external:
+      name: php-apache
+
+volumes:
+  mysql-data:
